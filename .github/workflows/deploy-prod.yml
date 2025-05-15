@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - stable
+      - main
 
 jobs:
   call-build-workflow:
@@ -15,7 +15,7 @@ jobs:
       first: test
 
   deploy:
-    name: Deploy to stable Environment
+    name: Deploy to Production Environment
     needs: call-build-workflow
     runs-on: ubuntu-latest
     environment:
