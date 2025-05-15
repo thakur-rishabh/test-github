@@ -15,7 +15,7 @@ jobs:
       first: test
 
   deploy:
-    name: Deploy to Production Environment
+    name: Deploy to stable Environment
     needs: call-build-workflow
     runs-on: ubuntu-latest
     environment:
