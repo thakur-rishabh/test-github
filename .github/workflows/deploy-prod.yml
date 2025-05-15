@@ -1,0 +1,53 @@
+name: Deploy to Production
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  call-build-workflow:
+    name: Build Project
+    if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/build.yml
+    secrets:
+      first: test
+
+  deploy:
+    name: Deploy to Production Environment
+    needs: call-build-workflow
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://your-app-prod-url.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Echo Deployment Information
+        run: |
+          echo "🚀 Starting deployment to Production..."
+          echo "Triggered by PR #${{ github.event.number }} merge to ${{ github.base_ref }}"
+          echo "Merged by: ${{ github.event.pull_request.merged_by.login }}"
+          echo "Commit to deploy: ${{ github.sha }}" # This will be the merge commit SHA
+
+      - name: test var
+        shell: bash
+        run: |
+          echo "sha_test=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_ENV
+
+      - name: Print Short SHA Environment Variable
+        run: |
+          echo "The short SHA set in the previous step is: ${{ env.sha_test }}"
+
+      - name: Simulate Deployment to Production Servers
+        run: |
+          echo "🌍 Simulating deployment to production servers..."
+          echo "Connecting to server cluster..."
+          sleep 5
+
+
+      - name: Deployment Complete Notification
+        run: echo "🎉 Deployment to Production completed!"
