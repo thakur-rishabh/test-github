@@ -1,0 +1,25 @@
+name: Build your package
+
+on:
+  workflow_call:
+    secrets:
+      first:
+        required: true
+
+jobs:
+  build:
+    name: build image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.base.ref }}
+        fetch-depth: 0
+
+    - name: Echo Build Information
+      run: |
+        echo "🚀 Starting the build process..."
+        echo "Branch being built: ${{ github.ref_name }}"
+        echo "Commit SHA: ${{ github.sha }}"
