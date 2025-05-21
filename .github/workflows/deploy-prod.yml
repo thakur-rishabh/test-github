@@ -5,6 +5,8 @@ on:
     types: [closed]
     branches:
       - main
+env:
+  PRINCIPAL_ENGINEER_USERNAME: 'resu312'
 
 jobs:
   call-build-workflow:
@@ -42,12 +44,27 @@ jobs:
         run: |
           echo "The short SHA set in the previous step is: ${{ env.sha_test }}"
 
-      - name: Simulate Deployment to Production Servers
+      - name: Run tests (example step that will intentionally fail)
+        id: test
         run: |
-          echo "🌍 Simulating deployment to production servers..."
-          echo "Connecting to server cluster..."
-          sleep 5
+          echo "Running tests..."
+          echo "This step will intentionally fail to test notifications."
+          exit 0 # This causes the step to fail
+          echo "Tests successful!" # This line will not be reached
 
+      - name: Notify on Failure
+        if: failure() # This condition ensures this step runs only if any previous step in this job fails
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            :x: **Workflow Failure!**
 
-      - name: Deployment Complete Notification
-        run: echo "🎉 Deployment to Production completed!"
+            Hi @${{ github.event.pull_request.user.login }} (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }}),
+            One or more checks in the CI workflow failed for this PR.
+
+            Please review the [workflow run logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details and to identify the cause of the failure.
+          edit-mode: replace 
+          reactions: 'confused'
