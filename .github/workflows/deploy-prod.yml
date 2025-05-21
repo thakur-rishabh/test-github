@@ -10,7 +10,7 @@ env:
 
 jobs:
   call-build-workflow:
-    name: Build Project
+    name: Build Projects
     if: github.event.pull_request.merged == true
     uses: ./.github/workflows/build.yml
     secrets:
