@@ -35,7 +35,7 @@ jobs:
           echo "Merged by: ${{ github.event.pull_request.merged_by.login }}"
           echo "Commit to deploy: ${{ github.sha }}" # This will be the merge commit SHA
 
-      - name: test var
+      - name: test vars
         shell: bash
         run: |
           echo "sha_test=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_ENV
