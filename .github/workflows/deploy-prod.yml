@@ -47,7 +47,7 @@ jobs:
       - name: Run tests (example step that will intentionally fail)
         id: test
         run: |
-          echo "Running tests...."
+          echo "Running tests....."
           echo "This step will intentionally fail to test notifications."
           exit 1 # This causes the step to fail
           echo "Tests successful!" # This line will not be reached
