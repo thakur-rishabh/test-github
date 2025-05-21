@@ -47,7 +47,7 @@ jobs:
       - name: Run tests (example step that will intentionally fail)
         id: test
         run: |
-          echo "Running tests..."
+          echo "Running tests...."
           echo "This step will intentionally fail to test notifications."
           exit 1 # This causes the step to fail
           echo "Tests successful!" # This line will not be reached
@@ -56,7 +56,7 @@ jobs:
         if: failure() # This condition ensures this step runs only if any previous step in this job fails
         uses: peter-evans/create-or-update-comment@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MY_SECRETE }}
           repository: ${{ github.repository }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
