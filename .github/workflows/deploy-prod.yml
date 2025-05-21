@@ -56,7 +56,7 @@ jobs:
         if: failure() # This condition ensures this step runs only if any previous step in this job fails
         uses: peter-evans/create-or-update-comment@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MY_SECRETE }}
           repository: ${{ github.repository }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
