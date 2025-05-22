@@ -44,13 +44,32 @@ jobs:
         run: |
           echo "The short SHA set in the previous step is: ${{ env.sha_test }}"
 
-      - name: Run tests (example step that will intentionally fail)
-        id: test
+      # - name: Run tests (example step that will intentionally fail)
+      #   id: test
+      #   run: |
+      #     echo "Running tests....."
+      #     echo "This step will intentionally fail to test notifications."
+      #     exit 1 # This causes the step to fail
+      #     echo "Tests successful!" # This line will not be reached
+      - name: Health Check
+        id: health_check
         run: |
-          echo "Running tests....."
-          echo "This step will intentionally fail to test notifications."
-          exit 1 # This causes the step to fail
-          echo "Tests successful!" # This line will not be reached
+          echo "Checking production endpoint…"
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://httpstat.us/500)
+          echo "::set-output name=status_code::$STATUS_CODE"
+
+      - name: Notify on health check failure
+        if: steps.health_check.outputs.status_code != '200'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚨 Health check failed with status code ${{ steps.health_check.outputs.status_code }}. (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
+            })
       - name: notify using script
         if: failure()
         uses: actions/github-script@v7
@@ -64,20 +83,3 @@ jobs:
               body: 'Hi @${{github.event.pull_request.user.login }} (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})'
               
             })
-
-      - name: Notify on Failure
-        if: failure() # This condition ensures this step runs only if any previous step in this job fails
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.MY_SECRETE }}
-          repository: ${{ github.repository }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            :x: **Workflow Failure!**
-
-            Hi @${{ github.event.pull_request.user.login }} (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }}),
-            One or more checks in the CI workflow failed for this PR.
-
-            Please review the [workflow run logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details and to identify the cause of the failure.
-          edit-mode: replace 
-          reactions: 'confused'
