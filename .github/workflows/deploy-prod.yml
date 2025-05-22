@@ -74,8 +74,13 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚨 @${{github.event.pull_request.user.login }} Health check failed with status code ${{ steps.health_check.outputs.status_code }}. (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
+              body: 
+                  `🚨 **Health check failed** on production endpoint after deploy of \`${{ github.sha }}\` (PR #${{ github.event.number }}).\n\n` +
+                  `• **Status code:** ${{ steps.health_check.outputs.status_code }}\n` +
+                  `• **Endpoint tested:** https://your-app-prod-url.com\n\n` +
+                  `Please investigate the service health or rollback the release. (cc @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
             })
+      
       - name: Notify for failure
         if: failure()
         uses: actions/github-script@v7
@@ -86,10 +91,9 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `
-              **Workflow Failure!**
-              Hi @${{ github.event.pull_request.user.login }} (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }}),
-              One or more checks in the CI workflow failed for this PR.
-              Please review the [workflow run logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details and to identify the cause of the failure.`  
-              
+              body: 
+              `❌ **Automated tests failed** on commit \`${{ github.sha }}\` in PR #${{ github.event.number }}.\n\n` +
+              `• **Logs & Checks:** [View workflow run](${context.payload.workflow_run.html_url})\n` +
+              `• **Error:** Exit code ${{ steps.test.outcome }}\n\n` +
+              `Please review the test output, fix any failures, and push a new commit. (cc @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
             })
