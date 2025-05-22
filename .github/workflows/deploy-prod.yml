@@ -93,7 +93,7 @@ jobs:
               repo: context.repo.repo,
               body: 
               `❌ **Automated tests failed** on commit \`${{ github.sha }}\` in PR #${{ github.event.number }}.\n\n` +
-              `• **Logs & Checks:** [View workflow run](${context.payload.workflow_run.html_url})\n` +
+              `• **Logs & Checks:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n` +
               `• **Error:** Exit code ${{ steps.test.outcome }}\n\n` +
               `Please review the test output, fix any failures, and push a new commit. (cc @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
             })
