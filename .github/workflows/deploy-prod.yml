@@ -44,17 +44,18 @@ jobs:
         run: |
           echo "The short SHA set in the previous step is: ${{ env.sha_test }}"
 
-      # - name: Run tests (example step that will intentionally fail)
-      #   id: test
-      #   run: |
-      #     echo "Running tests....."
-      #     echo "This step will intentionally fail to test notifications."
-      #     exit 1 # This causes the step to fail
-      #     echo "Tests successful!" # This line will not be reached
       - name: Wait 30 seconds before health check
         run: |
           echo "⏱️ Waiting 30 seconds before running health check…"
           sleep 30
+      
+      - name: Run tests (example step that will intentionally fail)
+        id: test
+        run: |
+          echo "Running tests....."
+          echo "This step will intentionally fail to test notifications."
+          exit 1 # This causes the step to fail
+          echo "Tests successful!" # This line will not be reached
         
       - name: Health Check
         id: health_check
@@ -73,9 +74,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚨 @${{github.event.pull_request.user.login }} 
-                    Health check failed with status code ${{ steps.health_check.outputs.status_code }}. 
-                    (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
+              body: `🚨 @${{github.event.pull_request.user.login }} Health check failed with status code ${{ steps.health_check.outputs.status_code }}. (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
             })
       - name: Notify for failure
         if: failure()
@@ -87,6 +86,10 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Hi @${{github.event.pull_request.user.login }} (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})'
+              body: `
+              **Workflow Failure!**
+              Hi @${{ github.event.pull_request.user.login }} (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }}),
+              One or more checks in the CI workflow failed for this PR.
+              Please review the [workflow run logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details and to identify the cause of the failure.`  
               
             })
