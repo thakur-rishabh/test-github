@@ -51,6 +51,11 @@ jobs:
       #     echo "This step will intentionally fail to test notifications."
       #     exit 1 # This causes the step to fail
       #     echo "Tests successful!" # This line will not be reached
+      - name: Wait 30 seconds before health check
+        run: |
+          echo "⏱️ Waiting 30 seconds before running health check…"
+          sleep 30
+        
       - name: Health Check
         id: health_check
         run: |
@@ -68,9 +73,11 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚨 @${{github.event.pull_request.user.login }} Health check failed with status code ${{ steps.health_check.outputs.status_code }}. (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
+              body: `🚨 @${{github.event.pull_request.user.login }} 
+                    Health check failed with status code ${{ steps.health_check.outputs.status_code }}. 
+                    (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
             })
-      - name: notify using script
+      - name: Notify for failure
         if: failure()
         uses: actions/github-script@v7
         with:
