@@ -68,7 +68,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚨 Health check failed with status code ${{ steps.health_check.outputs.status_code }}. (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
+              body: `🚨 @${{github.event.pull_request.user.login }} Health check failed with status code ${{ steps.health_check.outputs.status_code }}. (cc: @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
             })
       - name: notify using script
         if: failure()
