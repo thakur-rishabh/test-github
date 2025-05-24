@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - main
+      - stage
 env:
   PRINCIPAL_ENGINEER_USERNAME: 'resu312'
 
