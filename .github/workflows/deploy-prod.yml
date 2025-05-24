@@ -9,8 +9,7 @@ env:
   PRINCIPAL_ENGINEER_USERNAME: 'resu312'
 
 jobs:
-  call-build-workflow:
-    name: Build Projects
+  build:
     if: github.event.pull_request.merged == true
     uses: ./.github/workflows/build.yml
     secrets:
@@ -18,7 +17,7 @@ jobs:
 
   deploy:
     name: Deploy to Production Environment
-    needs: call-build-workflow
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -27,28 +26,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Echo Deployment Information
         run: |
           echo "🚀 Starting deployment to Production..."
           echo "Triggered by PR #${{ github.event.number }} merge to ${{ github.base_ref }}"
           echo "Merged by: ${{ github.event.pull_request.merged_by.login }}"
           echo "Commit to deploy: ${{ github.sha }}" # This will be the merge commit SHA
-
-      - name: test vars
-        shell: bash
-        run: |
-          echo "sha_test=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_ENV
-
-      - name: Print Short SHA Environment Variable
-        run: |
-          echo "The short SHA set in the previous step is: ${{ env.sha_test }}"
-
       - name: Wait 30 seconds before health check
         run: |
           echo "⏱️ Waiting 30 seconds before running health check…"
           sleep 30
-      
       - name: Run tests (example step that will intentionally fail)
         id: test
         run: |
@@ -56,19 +43,17 @@ jobs:
           echo "This step will intentionally fail to test notifications."
           exit 1 # This causes the step to fail
           echo "Tests successful!" # This line will not be reached
-        
       - name: Health Check
         id: health_check
         run: |
           echo "Checking production endpoint…"
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://httpstat.us/500)
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://httpstat.us/200)
           echo "::set-output name=status_code::$STATUS_CODE"
-
       - name: Notify on health check failure
         if: steps.health_check.outputs.status_code != '200'
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.MY_SECRETE }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -80,12 +65,11 @@ jobs:
                   `• **Endpoint tested:** https://your-app-prod-url.com\n\n` +
                   `Please investigate the service health or rollback the release. (cc @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
             })
-      
       - name: Notify for failure
         if: failure()
         uses: actions/github-script@v7
         with:
-          github-token: ${{secrets.MY_SECRETE}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
