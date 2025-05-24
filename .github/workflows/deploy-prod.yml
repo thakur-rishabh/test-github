@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "Running tests....."
           echo "This step will intentionally fail to test notifications."
-          exit 1 # This causes the step to fail
+          exit 0 # This causes the step to fail
           echo "Tests successful!" # This line will not be reached
       - name: Health Check
         id: health_check
