@@ -65,19 +65,3 @@ jobs:
                   `• **Endpoint tested:** https://your-app-prod-url.com\n\n` +
                   `Please investigate the service health or rollback the release. (cc @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
             })
-      - name: Notify for failure
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 
-              `❌ **Automated tests failed** on commit \`${{ github.sha }}\` in PR #${{ github.event.number }}.\n\n` +
-              `• **Logs & Checks:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n` +
-              `• **Error:** Exit code ${{ steps.test.outcome }}\n\n` +
-              `Please review the test output, fix any failures, and push a new commit. (cc @${{ env.PRINCIPAL_ENGINEER_USERNAME }})`
-            })

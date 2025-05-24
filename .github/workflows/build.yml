@@ -21,4 +21,3 @@ jobs:
         echo "🚀 Starting the build process..."
         echo "Branch being built: ${{ github.ref_name }}"
         echo "Commit SHA: ${{ github.sha }}"
-        exit 1
