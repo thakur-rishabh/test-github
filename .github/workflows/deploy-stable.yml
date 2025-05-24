@@ -46,7 +46,7 @@ jobs:
         id: health_check
         run: |
           echo "Checking production endpoint…"
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://httpstat.us/200)
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://httpstat.us/500)
           echo "::set-output name=status_code::$STATUS_CODE"
       - name: Notify on health check failure
         if: steps.health_check.outputs.status_code != '200'
